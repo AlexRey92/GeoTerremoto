@@ -12,15 +12,16 @@ import retrofit2.converter.gson.GsonConverterFactory
 
 class MainActivity : AppCompatActivity() {
     private lateinit var recyclerView: RecyclerView
-    private lateinit var Adapter:TerremotoAdapter
+    private lateinit var adapter:TerremotoAdapter
     private var listadoTerremotos = mutableListOf<Terremoto>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         recyclerView = findViewById(R.id.recyclerview)
         recyclerView.layoutManager = LinearLayoutManager(this)
-        Adapter= TerremotoAdapter()
-        recyclerView.adapter = Adapter
+        adapter = TerremotoAdapter()
+        recyclerView.adapter = adapter
 
         getRetroFit()
         getTerremoto()
@@ -31,17 +32,15 @@ class MainActivity : AppCompatActivity() {
                 val call = getRetroFit().create(ApiService::class.java).getWeekList()
                 val response = call.body()
                 listadoTerremotos.clear()
-                if (call.isSuccessful) {
-                    listadoTerremotos =
-                        (response?.features?.map { Earthquake -> Earthquake.toTerremoto() } ?: emptyList() )
-                                as MutableList<Terremoto>
-                    Adapter.submitList(listadoTerremotos)
-                } else {
-                    Adapter.submitList(listOf())
+                runOnUiThread {
+                    if (call.isSuccessful) {
+                        listadoTerremotos = (response?.features?.map { Earthquake -> Earthquake.toTerremoto() } ?: emptyList() ) as MutableList<Terremoto>
+                        adapter.submitList(listadoTerremotos)
+                    } else {
+                        adapter.submitList(listOf())
+                    }
                 }
-
             }
-
     }
 
 
